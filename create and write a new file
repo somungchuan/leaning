@@ -2,10 +2,10 @@ list1 = ['wo','你好']
 my_file = open('list1.c','w')
 my_file.writelines(list1)
 my_file.close()
-//writelines()只能写入"字符串序列"
+#writelines()只能写入"字符串序列"
 
 
 my_file = open('list1.c','w')
 my_file.write('list1')
 my_file.close()
-//write()只能写入字符,第二次使用该方法就会删除原文件,重新写入.
+#write()只能写入字符,第二次使用该方法就会删除原文件,重新写入.
