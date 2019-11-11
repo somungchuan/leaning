@@ -1,0 +1,35 @@
+import easygui as g
+import sys
+import random
+
+temp = random.randint(0,10)
+while 1:
+    g.msgbox ('在刚刚生成了一个随机数')
+    
+    msg = '这是一个范围在0--9之间的一个数'
+    title = '来猜猜这个数'
+    choices =['0','1','2','3','4','5','6','7','8','9']
+#弄了几个低级错误,本来就像这样把字符串转成数字就好,但我傻傻地用了字典,还用错了.
+
+    choice = g.choicebox(msg,title,choices)
+
+    i = 0
+    if int(choice) == temp:
+        g.msgbox ('wow!第一次就蒙对了?!')
+    while int(choice) != temp:
+        if int(choice) < temp:
+            g.msgbox ('不对哦,生成的数应该更大些')
+            i += 1
+            choice = g.choicebox(msg,title,choices)
+        else:
+            g.msgbox ('不对哦,生成的数应该更小些')
+            i += 1
+            choice = g.choicebox(msg,title,choices)
+    g.msgbox ('猜对了!一共猜了%d次'% i)
+
+    msg = '还想再玩一次吗?'
+    title = '请选择'
+    if g.ccbox(msg,title):
+        pass
+    else:
+        sys.exit(0)
