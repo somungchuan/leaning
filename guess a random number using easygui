@@ -5,6 +5,7 @@ import random
 temp = random.randint(0,10)
 while 1:
     g.msgbox ('在刚刚生成了一个随机数')
+#最开始写成了g.msgbox = ('...'),在理解上出现的差错
     
     msg = '这是一个范围在0--9之间的一个数'
     title = '来猜猜这个数'
