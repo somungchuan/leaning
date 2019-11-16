@@ -1,0 +1,13 @@
+import easygui as g
+x = {'a':1,'s':2,'d':3}
+title = ''
+choices = {}
+i = 0
+for item in x:
+    c = {item:x[item]} 
+    choices.update(c)
+    i += 1
+msg = ''
+temp = g.choicebox(msg,title,choices)
+ac = x['a']
+g.msgbox(ac)
