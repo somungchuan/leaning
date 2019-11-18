@@ -1,0 +1,310 @@
+import random as r
+import easygui as g
+import copy
+import sys
+
+npc_name = ['jack','mike','alice','marry','oil','jeff','andreaw','rose', \
+'hank','lily','jerry','gaga','bill','bille','tom','sam','july','cat']
+hero_name = ['小美','小明','李华','小刚','奥里给','坤坤','熊大','熊二','光头强','菜','虚','鲲','小姐姐','哈哈哈哈'\
+    ,'峰','张津源']
+wea = {'木棍':1,'水枪':1,'小刀':2,'魔法棒':1,'枪':3,'竹签':1,'伞':1}
+boss_wea = {'巨大触手':5,'海洋眼':6}
+role_or_weapon = [0,0,1,1,1,1,1,1,1,2]
+gameround = ['4','3','2','2','1','1']
+
+class Role:
+    def __init__(self,name = '',violence = 0):
+        self.name = name
+        self.violence = violence
+
+    def getname(self):
+        self.name = npc_name1.pop(r.randint(0,len(npc_name1)-1))
+        #self.name = npc_name1.pop()
+
+    def getviolence(self):
+        self.violence=r.randint(1,8)
+
+class Boss(Role):
+    pass
+
+class NewGuy(Role):
+    def __init__(self):
+        self.name = ''
+        self.violence = 0
+        self.attribute = {}
+
+    def getname(self,name):
+        self.name = name
+    
+    def getviolence(self):
+        self.violence=r.randint(4,10)
+
+    def getrandomname(self):
+        self.name = hero_name1.pop(r.randint(0,len(hero_name1)-1))
+    
+    def get_attribute(self,violence): 
+        self.attribute = {first_role.name:violence}
+
+class Team:
+    def __init__(self):
+        self.member = {}
+    
+    def add_new_member(self,new_member):
+        self.member.update(new_member)
+    
+    def gain_violence(self,hero,weapon):
+        self.member[hero] += weapon
+    
+
+class HeroTeam(Team):
+    pass
+
+class NpcTeam(Team):
+    pass
+
+while 1:
+    #npc_name1=copy.deepcopy(npc_name)          
+    npc_name1 = npc_name[:]
+    #hero_name1=copy.deepcopy(hero_name)      
+    hero_name1 = hero_name[:]
+
+    g.msgbox('暴打克苏鲁小游戏')
+
+    title = '暴打克苏鲁小游戏'
+    msg = '你获得了你的第一位勇士,是否为ta取名?'
+    #choice = ['是','否']
+    temp = g.ccbox(msg,title)
+
+    hero_team = HeroTeam()
+    first_role = NewGuy()
+    if temp == True:
+        msg = '请为ta取名'
+        name = g.enterbox(msg,strip = False)
+        first_role.getname(name)
+        first_role.getviolence()
+    else:
+        first_role.getrandomname()
+        first_role.getviolence()
+    first_role.get_attribute (first_role.violence)
+    hero_team.add_new_member(first_role.attribute)
+
+    #name = first_role.name
+    #violence = first_role.violence
+    #weapon = first_role.weapon
+    msg = '他的名字叫%s---他是武力值为%d' % (first_role.name,first_role.violence)
+    title = '%s' % first_role.name
+    g.msgbox(msg,title)
+
+    round = 0
+    game_round = int(gameround.pop())
+    while 1:
+        #while 1:
+        npc_team = NpcTeam()
+        i = 0
+        while i < game_round:
+            npc = Role()
+            npc.getname()
+            npcname = npc.name
+            npc.getviolence()
+            npc_violence = npc.violence
+            i += 1
+            nem_member = { npcname : npc_violence}
+            npc_team.add_new_member(nem_member)
+
+        g.msgbox('敌人出现啦!!!')
+
+        msg0 = '出现了%d个敌人\n' % len(npc_team.member)
+        '''while i < len(npc_team.member):
+            msg = msg + '\n %s---武力值为%d' % (npc_team.member(i),npc_team.member.value(i))
+            i += 1
+        i = 0'''
+        msg1 = ''
+        msg2 = ''
+        for item in npc_team.member:
+            msg1 +='%s---武力值为%d\n' % (item,npc_team.member[item])
+        #定义格式时,后面被定义的内容个数>=2时,要用括号括起来
+        #if i < len(hero_team.member):
+        #    msg = msg + '\n 队伍 \n %s---武力值:%d' % (hero_team.member(i),hero_team.member.value(0))
+        for item in hero_team.member:
+            msg2 += '%s---武力值:%d\n' % (item,hero_team.member[item])
+        title = '第%d关' % round
+        msg = msg0 + msg1 + '\n队伍' + msg2
+        g.msgbox(msg,title)
+
+        if len(hero_team.member) < len(npc_team.member):
+            temp = g.ccbox('因人数不够而失败了,是否回到第一关(队伍将不会变化)')  
+            if  temp == True:
+                gameround = ['4','3','2','2','1','1']
+                continue
+            else:
+                break
+
+        winning = 0
+        title = '对战中!'
+        choices = {}
+        for item in hero_team.member:
+            temp = {item:hero_team.member[item]}
+            choices.update(temp)
+        for item in npc_team.member:
+            num1 = npc_team.member[item]
+            msg = '队伍\n' + msg2 + '敌人:\n' + '%s---武力值为%d\n' % (item,num1) 
+            battle = g.choicebox(msg,title,choices)
+            num2 = hero_team.member[battle]
+
+            if num1 == num2:
+                g.msgbox('打了平手')
+            elif num1 < num2:
+                winning += 1
+                g.msgbox('赢了!')
+            else:
+                g.msgbox('=_=输了')
+                
+            del choices[battle]#保证出战后的角色不会再上场
+        if winning > len(npc_team.member)/2:
+            g.msgbox('Yeah~通关!')
+            round += 1
+            game_round = int(gameround.pop())
+            temp = role_or_weapon[r.randint(0,10)]
+            #打怪获得新角色
+            if temp == 1:
+                hero = NewGuy()
+                hero.getrandomname()
+                hero.getviolence()
+                g.msgbox('获得了新人物!%s---%d' % (hero.name,hero.violence))
+                new_member = {hero.name:hero.violence}
+                hero_team.add_new_member(new_member)
+            #打怪获得武器,为一位角色戴上后就把武器的武力值加进角色的武力值中
+            elif temp == 0:
+                #a = list({'a':1,'b':2,'c':3}.items())==>a = [('b',2),('c',3),('a',1)]
+                oppp = [ key for key,value in wea.items() ]
+                opp = r.choice(oppp)
+                op = wea[opp]
+                weapon1 = {opp:op}
+                for item in weapon1:
+                    g.msgbox('掉落了一样武器!%s---武力值:%d' % (item,weapon1[item]))
+                    weapon2 = weapon1[item]
+                g.msgbox('来为你的人带上吧')
+                msg = '为____带上'
+                title = '分配武器'
+                choices = {}
+                for item in hero_team.member:
+                    temp = {item:hero_team.member[item]}
+                    choices.update(temp)
+                xuanze = g.choicebox(msg,title,choices)
+                hero_team.gain_violence(xuanze,weapon2)
+            #还有10%的可能什么都没有
+            else:
+                g.msgbox('很遗憾,没有出现战利品')
+            if round == 3:
+                boss1 = Boss()
+                boss1.violence = 15
+                boss1.name = 'Ghatanothoa'
+                g.msgbox('BOSS!BOSS出现啦!!!')
+                title = 'Boss'
+                msg01 = '%s-------%d' % (boss1.name,boss1.violence)
+                msg02 = ''
+                allvio = 0
+                for item in hero_team.member:
+                    msg02 += '%s---%d' % (item,hero_team.member[item])
+                    allvio += hero_team.member[item]
+                msg = msg01 + '\n队伍' + msg02 + '队伍总武力值为%d' % allvio
+                g.msgbox(msg,title)
+                if boss1.violence < allvio:
+                    round += 1
+                    g.msgbox('战胜了%s' % boss1.name)
+                    #proxy = random.choice(useful_proxies.keys())
+                    oppp = [ key for key,value in boss_wea.items() ]
+                    opp = oppp[0]
+                    op = boss_wea[opp]
+                    weapon3 = {opp:op}
+                    for item in weapon3:
+                        g.msgbox('掉落了一样武器!%s---武力值:%d' % (item,weapon3[item]))
+                        weapon03 = weapon3[item]
+                    g.msgbox('来为你的人带上吧')
+                    msg = '为____带上'
+                    title = '分配武器'
+                    choices = {}
+                    for item in hero_team.member:
+                        temp = {item:hero_team.member[item]}
+                        choices.update(temp)
+                    xuanze = g.choicebox(msg,title,choices)
+                    hero_team.gain_violence(xuanze,weapon03)
+                else:
+                    temp = g.ccbox('Game Over~\n是否重新开始第一关?还是重玩游戏?')
+                    if  temp == True:
+                        gameround = ['4','3','2','2','1','1']
+                        continue
+                    else:
+                        break
+            elif round == 6:
+                round += 1
+                boss2 = Boss()
+                boss2.violence = 30
+                boss2.name = 'Deep Ones'
+                g.msgbox('BOSS!BOSS出现啦!!!')
+                title = 'Boss'
+                msg01 = '%s-------%d' % (boss2.name,boss2.violence)
+                msg02 = ''
+                allvio = 0
+                for item in hero_team.member:
+                    msg02 += '%s---%d' % (item,hero_team.member[item])
+                    allvio += hero_team.member[item]
+                msg = msg01 + '\n队伍' + msg02 + '队伍总武力值为%d' % allvio
+                g.msgbox(msg,title)
+                if boss2.violence < allvio:
+                    g.msgbox('战胜了%s' % boss2.name)
+                    #proxy = random.choice(useful_proxies.keys())
+                    oppp = [ key for key,value in boss_wea.items() ]
+                    opp = oppp[1]
+                    op = boss_wea[opp]
+                    weapon3 = {opp:op}
+                    for item in weapon3:
+                        g.msgbox('掉落了一样武器!%s---武力值:%d' % (item,weapon3[item]))
+                        weapon03 = weapon3[item]
+                    g.msgbox('来为你的人带上吧')
+                    msg = '为____带上'
+                    title = '分配武器'
+                    choices = {}
+                    for item in hero_team.member:
+                        temp = {item:hero_team.member[item]}
+                        choices.update(temp)
+                    xuanze = g.choicebox(msg,title,choices)
+                    hero_team.gain_violence(xuanze,weapon03)
+                else:
+                    temp = g.ccbox('Game Over~\n是否重新开始第一关?还是重玩游戏?')
+                    if  temp == True:
+                        gameround = ['4','3','2','2','1','1']
+                        continue
+                    else:
+                        break
+            elif round == 9:
+                boss3 = Boss()
+                boss3.violence = 50
+                boss3.name = 'Cthulhu'
+                g.msgbox('BOSS!最终BOSS出现啦!!!')
+                title = 'Boss'
+                msg01 = '%s-------%d' % (boss3.name,boss3.violence)
+                msg02 = ''
+                allvio = 0
+                for item in hero_team.member:
+                    msg02 += '%s---%d' % (item,hero_team.member[item])
+                    allvio += hero_team.member[item]
+                msg = msg01 + '\n队伍' + msg02 + '队伍总武力值为%d' % allvio
+                if boss3.violence < allvio:
+                    g.msgbox('战胜了最终Boss---Cthulhu!!!')
+                    temp = g.ccbox('重新开始?')
+                    if temp == True:
+                        break
+                    else:
+                        sys.exit(0)
+            else:
+                continue
+                              
+        else:
+            temp = g.ccbox('Game Over~\n是否重新开始第一关?还是重玩游戏?')
+            if  temp == True:
+                gameround = ['4','3','2','2','1','1']
+                continue
+            else:
+                break
+       
